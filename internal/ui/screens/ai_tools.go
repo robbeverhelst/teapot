@@ -1,6 +1,7 @@
 package screens
 
 import (
+	"strings"
 	"teapot/internal/ui/components"
 	"teapot/internal/ui/styles"
 
@@ -9,9 +10,8 @@ import (
 )
 
 type AIToolsModel struct {
-	editors  []EditorOption
-	cursor   int
-	selected int
+	editors []EditorOption
+	cursor  int
 }
 
 type EditorOption struct {
@@ -19,50 +19,63 @@ type EditorOption struct {
 	Name        string
 	Description string
 	Extensions  []string
+	Selected    bool
+	IsContinue  bool
 }
 
 func NewAIToolsModel() AIToolsModel {
 	return AIToolsModel{
 		editors: []EditorOption{
 			{
-				"claude-code",
-				"Claude Code",
-				"Anthropic's official CLI for Claude",
-				[]string{"claude-code", "VS Code integration"},
+				Key:         "claude-code",
+				Name:        "Claude Code",
+				Description: "Anthropic's official CLI for Claude",
+				Extensions:  []string{"claude-code", "VS Code integration"},
+				Selected:    false,
+				IsContinue:  false,
 			},
 			{
-				"cursor",
-				"Cursor",
-				"AI-powered code editor",
-				[]string{"Built-in AI", "VS Code fork"},
+				Key:         "cursor",
+				Name:        "Cursor",
+				Description: "AI-powered code editor",
+				Extensions:  []string{"Built-in AI", "VS Code fork"},
+				Selected:    false,
+				IsContinue:  false,
 			},
 			{
-				"windsurf",
-				"Windsurf",
-				"Codeium's AI-native IDE",
-				[]string{"AI chat", "Code generation"},
+				Key:         "windsurf",
+				Name:        "Windsurf",
+				Description: "Codeium's AI-native IDE",
+				Extensions:  []string{"AI chat", "Code generation"},
+				Selected:    false,
+				IsContinue:  false,
 			},
 			{
-				"continue-dev",
-				"Continue.dev",
-				"Open-source AI coding assistant",
-				[]string{"VS Code extension", "JetBrains plugin"},
+				Key:         "continue-dev",
+				Name:        "Continue.dev",
+				Description: "Open-source AI coding assistant",
+				Extensions:  []string{"VS Code extension", "JetBrains plugin"},
+				Selected:    false,
+				IsContinue:  false,
 			},
 			{
-				"none",
-				"Skip AI Tools",
-				"Set up AI tools later",
-				[]string{},
+				Key:         "none",
+				Name:        "Skip AI Tools",
+				Description: "Set up AI tools later",
+				Extensions:  []string{},
+				Selected:    false,
+				IsContinue:  false,
 			},
 			{
-				"continue",
-				"Continue",
-				"Proceed with selected AI tools",
-				[]string{},
+				Key:         "continue",
+				Name:        "Continue",
+				Description: "Proceed with selected AI tools",
+				Extensions:  []string{},
+				Selected:    false,
+				IsContinue:  true,
 			},
 		},
-		cursor:   0,
-		selected: -1,
+		cursor: 0,
 	}
 }
 
@@ -82,21 +95,33 @@ func (m AIToolsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.cursor > 0 {
 				m.cursor--
 			}
+		case " ":
+			// Space key toggles selection
+			if !m.editors[m.cursor].IsContinue {
+				m.editors[m.cursor].Selected = !m.editors[m.cursor].Selected
+			}
+			return m, nil
 		case "enter":
-			if m.editors[m.cursor].Key == "continue" {
-				// Continue with selected editor
-				if m.selected >= 0 {
-					return m, func() tea.Msg {
-						return AIToolsSelectedMsg{
-							Editor:     m.editors[m.selected].Key,
-							Extensions: m.editors[m.selected].Extensions,
-						}
+			if m.editors[m.cursor].IsContinue {
+				// Continue with selected tools
+				selectedTools := []string{}
+				selectedExtensions := []string{}
+				for _, editor := range m.editors {
+					if !editor.IsContinue && editor.Selected {
+						selectedTools = append(selectedTools, editor.Key)
+						selectedExtensions = append(selectedExtensions, editor.Extensions...)
 					}
 				}
-				return m, nil // No selection made
+				
+				return m, func() tea.Msg {
+					return AIToolsSelectedMsg{
+						Editor:     strings.Join(selectedTools, ","),
+						Extensions: selectedExtensions,
+					}
+				}
 			} else {
-				// Select current editor
-				m.selected = m.cursor
+				// Toggle selection with Enter too
+				m.editors[m.cursor].Selected = !m.editors[m.cursor].Selected
 				return m, nil
 			}
 		case "s":
@@ -122,7 +147,7 @@ func (m AIToolsModel) View() string {
 		var checked string
 		var editorStyle lipgloss.Style
 		
-		if editor.Key == "continue" {
+		if editor.IsContinue {
 			// Continue option styling
 			checked = "→"
 			if m.cursor == i {
@@ -131,12 +156,12 @@ func (m AIToolsModel) View() string {
 				editorStyle = styles.UnselectedStyle
 			}
 		} else {
-			// Regular editor styling
-			if m.selected == i {
-				checked = "●"
+			// Regular editor styling (multiselect)
+			if editor.Selected {
+				checked = "☑" // Checked box
 				editorStyle = styles.CheckedStyle
 			} else {
-				checked = " "
+				checked = "☐" // Unchecked box
 				editorStyle = styles.UnselectedStyle
 			}
 			
@@ -145,10 +170,9 @@ func (m AIToolsModel) View() string {
 			}
 		}
 
-		choice := lipgloss.NewStyle().
-			Foreground(styles.ColorTextMuted).
-			Render(cursor) + " " +
-			editorStyle.Render(checked+" "+editor.Name)
+		// Unified choice rendering
+		choiceText := cursor + " " + checked + " " + editor.Name
+		choice := editorStyle.Render(choiceText)
 
 		description := lipgloss.NewStyle().
 			Foreground(styles.ColorTextMuted).

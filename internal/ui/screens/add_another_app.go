@@ -13,7 +13,6 @@ import (
 type AddAnotherAppModel struct {
 	options        []AddAnotherOption
 	cursor         int
-	selected       int
 	appCount       int
 	architectureType models.ArchitectureType
 }
@@ -40,7 +39,6 @@ func NewAddAnotherAppModel(appCount int, architecture models.ArchitectureType) A
 	return AddAnotherAppModel{
 		options:          options,
 		cursor:           0,
-		selected:         -1, // No selection initially
 		appCount:         appCount,
 		architectureType: architecture,
 	}
@@ -64,19 +62,19 @@ func (m AddAnotherAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "enter":
 			if m.options[m.cursor].Key == "continue" {
-				// Continue with selected action
-				if m.selected >= 0 {
-					return m, func() tea.Msg {
-						return AddAnotherAppSelectedMsg{
-							Action: m.options[m.selected].Key,
-						}
+				// Continue to dev tools
+				return m, func() tea.Msg {
+					return AddAnotherAppSelectedMsg{
+						Action: "continue",
 					}
 				}
-				return m, nil // No selection made
 			} else {
-				// Select current option
-				m.selected = m.cursor
-				return m, nil
+				// Add another app
+				return m, func() tea.Msg {
+					return AddAnotherAppSelectedMsg{
+						Action: "add",
+					}
+				}
 			}
 		}
 	}
@@ -120,30 +118,20 @@ func (m AddAnotherAppModel) View() string {
 		if option.Key == "continue" {
 			// Continue option styling
 			checked = "→"
-			if m.cursor == i {
-				optionStyle = styles.FocusedStyle
-			} else {
-				optionStyle = styles.UnselectedStyle
-			}
 		} else {
-			// Regular option styling
-			if m.selected == i {
-				checked = "●"
-				optionStyle = styles.CheckedStyle
-			} else {
-				checked = " "
-				optionStyle = styles.UnselectedStyle
-			}
-			
-			if m.cursor == i {
-				optionStyle = styles.FocusedStyle
-			}
+			// Add another app option
+			checked = "+"
+		}
+		
+		if m.cursor == i {
+			optionStyle = styles.FocusedStyle
+		} else {
+			optionStyle = styles.UnselectedStyle
 		}
 
-		choice := lipgloss.NewStyle().
-			Foreground(styles.ColorTextMuted).
-			Render(cursor) + " " +
-			optionStyle.Render(checked+" "+option.Name)
+		// Unified choice rendering
+		choiceText := cursor + " " + checked + " " + option.Name
+		choice := optionStyle.Render(choiceText)
 
 		description := lipgloss.NewStyle().
 			Foreground(styles.ColorTextMuted).

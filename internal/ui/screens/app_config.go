@@ -51,17 +51,25 @@ func (m AppConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "shift+tab":
 			m.focusedArea = (m.focusedArea - 1 + 2) % 2
 		case "enter":
-			if m.appName != "" {
-				// Collect selected options
-				selectedOptions := make(map[string]interface{})
-				for _, option := range m.options {
-					selectedOptions[option.Key] = option.Selected
+			if m.focusedArea == 0 {
+				// If focused on name input, move to options section
+				if m.appName != "" {
+					m.focusedArea = 1
 				}
-				
-				return m, func() tea.Msg {
-					return AppConfigCompleteMsg{
-						AppName: m.appName,
-						Options: selectedOptions,
+			} else {
+				// If focused on options, proceed to next page
+				if m.appName != "" {
+					// Collect selected options
+					selectedOptions := make(map[string]interface{})
+					for _, option := range m.options {
+						selectedOptions[option.Key] = option.Selected
+					}
+					
+					return m, func() tea.Msg {
+						return AppConfigCompleteMsg{
+							AppName: m.appName,
+							Options: selectedOptions,
+						}
 					}
 				}
 			}
@@ -81,6 +89,7 @@ func (m AppConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.focusedArea == 0 && m.nameCursor > 0 {
 				m.appName = m.appName[:m.nameCursor-1] + m.appName[m.nameCursor:]
 				m.nameCursor--
+				return m, nil // Return command to indicate we handled the backspace
 			}
 		case "left":
 			if m.focusedArea == 0 && m.nameCursor > 0 {
@@ -173,10 +182,9 @@ func (m AppConfigModel) View() string {
 			optionStyle = styles.UnselectedStyle
 		}
 
-		choice := lipgloss.NewStyle().
-			Foreground(styles.ColorTextMuted).
-			Render(cursor) + " " +
-			optionStyle.Render(checked+" "+option.Name)
+		// Render the entire line together for proper alignment
+		choiceText := cursor + " " + checked + " " + option.Name
+		choice := optionStyle.Render(choiceText)
 
 		description := lipgloss.NewStyle().
 			Foreground(styles.ColorTextMuted).

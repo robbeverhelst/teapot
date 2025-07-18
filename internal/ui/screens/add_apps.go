@@ -10,9 +10,8 @@ import (
 )
 
 type AddAppsModel struct {
-	apps     []models.AppType
-	cursor   int
-	selected models.AppType
+	apps   []models.AppType
+	cursor int
 }
 
 func NewAddAppsModel() AddAppsModel {
@@ -24,10 +23,8 @@ func NewAddAppsModel() AddAppsModel {
 			models.AppTypeExpo,
 			models.AppTypeNest,
 			models.AppTypeBasicNode,
-			"continue", // Special continue option
 		},
-		cursor:   0,
-		selected: "",
+		cursor: 0,
 	}
 }
 
@@ -48,20 +45,11 @@ func (m AddAppsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor--
 			}
 		case "enter":
-			if m.apps[m.cursor] == "continue" {
-				// Continue with selected app
-				if m.selected != "" {
-					return m, func() tea.Msg {
-						return AppTypeSelectedMsg{
-							AppType: m.selected,
-						}
-					}
+			// Immediately proceed with the selected app
+			return m, func() tea.Msg {
+				return AppTypeSelectedMsg{
+					AppType: m.apps[m.cursor],
 				}
-				return m, nil // No selection made
-			} else {
-				// Select current app
-				m.selected = m.apps[m.cursor]
-				return m, nil
 			}
 		}
 	}
@@ -75,57 +63,35 @@ func (m AddAppsModel) View() string {
 	for i, app := range m.apps {
 		cursor := " "
 		
-		var checked string
+		// Simple single-select styling
 		var optionStyle lipgloss.Style
-		var descriptionText string
-		var name string
-		
-		if app == "continue" {
-			// Continue option styling
-			checked = "→"
-			name = "Continue"
-			descriptionText = "Proceed with selected application"
-			if m.cursor == i {
-				optionStyle = styles.FocusedStyle
-			} else {
-				optionStyle = styles.UnselectedStyle
-			}
+		if m.cursor == i {
+			optionStyle = styles.FocusedStyle
 		} else {
-			// Regular app option styling
-			if m.selected == app {
-				checked = "●"
-				optionStyle = styles.CheckedStyle
-			} else {
-				checked = " "
-				optionStyle = styles.UnselectedStyle
-			}
-			
-			if m.cursor == i {
-				optionStyle = styles.FocusedStyle
-			}
-			
-			name = models.AppTypeNames[app]
-			
-			switch app {
-			case models.AppTypeReact:
-				descriptionText = "Client-side React application"
-			case models.AppTypeNext:
-				descriptionText = "Full-stack React framework"
-			case models.AppTypeTanStack:
-				descriptionText = "Modern full-stack React framework"
-			case models.AppTypeExpo:
-				descriptionText = "React Native mobile application"
-			case models.AppTypeNest:
-				descriptionText = "Scalable Node.js server framework"
-			case models.AppTypeBasicNode:
-				descriptionText = "Basic Node.js application"
-			}
+			optionStyle = styles.UnselectedStyle
+		}
+		
+		name := models.AppTypeNames[app]
+		
+		var descriptionText string
+		switch app {
+		case models.AppTypeReact:
+			descriptionText = "Client-side React application"
+		case models.AppTypeNext:
+			descriptionText = "Full-stack React framework"
+		case models.AppTypeTanStack:
+			descriptionText = "Modern full-stack React framework"
+		case models.AppTypeExpo:
+			descriptionText = "React Native mobile application"
+		case models.AppTypeNest:
+			descriptionText = "Scalable Node.js server framework"
+		case models.AppTypeBasicNode:
+			descriptionText = "Basic Node.js application"
 		}
 
-		choice := lipgloss.NewStyle().
-			Foreground(styles.ColorTextMuted).
-			Render(cursor) + " " +
-			optionStyle.Render(checked+" "+name)
+		// Simple choice rendering for single-select
+		choiceText := cursor + " " + name
+		choice := optionStyle.Render(choiceText)
 
 		description := lipgloss.NewStyle().
 			Foreground(styles.ColorTextMuted).

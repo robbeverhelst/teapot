@@ -62,6 +62,7 @@ func (m ArchitectureModel) View() string {
 	for i, option := range m.options {
 		cursor := " "
 		
+		// Enhanced selection marker with neon glow
 		checked := " "
 		if m.cursor == i {
 			checked = "●"
@@ -72,7 +73,7 @@ func (m ArchitectureModel) View() string {
 		
 		switch option {
 		case models.ArchitectureTurborepo:
-			optionStyle = styles.SelectedStyle
+			optionStyle = styles.UnselectedStyle
 			descriptionText = "Fast, incremental builds with caching"
 		case models.ArchitectureSingle:
 			optionStyle = styles.UnselectedStyle
@@ -82,8 +83,11 @@ func (m ArchitectureModel) View() string {
 			descriptionText = "Enterprise-grade monorepo tools"
 		}
 
+		// Apply neon glow effect to selected item
 		if m.cursor == i {
 			optionStyle = styles.FocusedStyle
+		} else {
+			// Keep the original style for unselected items
 		}
 
 		name := models.ArchitectureNames[option]
@@ -91,10 +95,9 @@ func (m ArchitectureModel) View() string {
 			name += " 🚧"
 		}
 
-		choice := lipgloss.NewStyle().
-			Foreground(styles.ColorTextMuted).
-			Render(cursor) + " " +
-			optionStyle.Render(checked+" "+name)
+		// Enhanced choice rendering with unified styling
+		choiceText := cursor + " " + checked + " " + name
+		choice := optionStyle.Render(choiceText)
 
 		description := lipgloss.NewStyle().
 			Foreground(styles.ColorTextMuted).

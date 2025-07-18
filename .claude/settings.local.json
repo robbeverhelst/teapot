@@ -12,7 +12,9 @@
       "WebFetch(domain:pkg.go.dev)",
       "Bash(go get:*)",
       "Bash(mkdir:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(find:*)",
+      "Bash(go test:*)"
     ],
     "deny": []
   }

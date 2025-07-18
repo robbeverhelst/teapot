@@ -51,15 +51,16 @@ func (m DevToolsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "enter":
 			if m.options[m.cursor].Key == "continue" {
-				// Continue with selected tool
+				// Continue with selected tool (default to first option if none selected)
+				selectedTool := "prettier-eslint" // default
 				if m.selected >= 0 {
-					return m, func() tea.Msg {
-						return DevToolsSelectedMsg{
-							LintingTool: m.options[m.selected].Key,
-						}
+					selectedTool = m.options[m.selected].Key
+				}
+				return m, func() tea.Msg {
+					return DevToolsSelectedMsg{
+						LintingTool: selectedTool,
 					}
 				}
-				return m, nil // No selection made
 			} else {
 				// Select current tool
 				m.selected = m.cursor
@@ -114,10 +115,9 @@ func (m DevToolsModel) View() string {
 			}
 		}
 
-		choice := lipgloss.NewStyle().
-			Foreground(styles.ColorTextMuted).
-			Render(cursor) + " " +
-			optionStyle.Render(checked+" "+option.Name)
+		// Unified choice rendering
+		choiceText := cursor + " " + checked + " " + option.Name
+		choice := optionStyle.Render(choiceText)
 
 		description := lipgloss.NewStyle().
 			Foreground(styles.ColorTextMuted).

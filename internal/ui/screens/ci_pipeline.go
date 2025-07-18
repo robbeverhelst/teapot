@@ -89,8 +89,9 @@ func (m CIPipelineModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "enter":
 			if m.currentArea == 0 {
-				// In provider area, select current provider
+				// In provider area, select current provider and move to features
 				m.selectedProvider = m.providerIdx
+				m.currentArea = 1 // Move focus to features section
 				return m, nil
 			} else {
 				// In features area, either select feature or continue
@@ -157,10 +158,9 @@ func (m CIPipelineModel) View() string {
 			providerStyle = styles.UnselectedStyle
 		}
 
-		choice := lipgloss.NewStyle().
-			Foreground(styles.ColorTextMuted).
-			Render(cursor) + " " +
-			providerStyle.Render(checked+" "+provider.Name)
+		// Render the entire line together for proper alignment
+		choiceText := cursor + " " + checked + " " + provider.Name
+		choice := providerStyle.Render(choiceText)
 
 		description := lipgloss.NewStyle().
 			Foreground(styles.ColorTextMuted).
@@ -206,10 +206,9 @@ func (m CIPipelineModel) View() string {
 			featureStyle = styles.UnselectedStyle
 		}
 
-		choice := lipgloss.NewStyle().
-			Foreground(styles.ColorTextMuted).
-			Render(cursor) + " " +
-			featureStyle.Render(checked+" "+feature.Name)
+		// Render the entire line together for proper alignment
+		choiceText := cursor + " " + checked + " " + feature.Name
+		choice := featureStyle.Render(choiceText)
 
 		description := lipgloss.NewStyle().
 			Foreground(styles.ColorTextMuted).

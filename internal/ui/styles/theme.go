@@ -1,33 +1,39 @@
+// Package styles provides a comprehensive design system for the Teapot CLI application.
+// It includes color palettes, typography styles, and responsive layout components
+// that create a consistent and professional user interface.
 package styles
 
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	// Modern professional color palette
-	ColorPrimary     = lipgloss.Color("#6366F1")    // Indigo - main brand
-	ColorSecondary   = lipgloss.Color("#8B5CF6")    // Purple - secondary actions
-	ColorAccent      = lipgloss.Color("#06B6D4")    // Cyan - highlights
-	ColorSuccess     = lipgloss.Color("#10B981")    // Green - success states
-	ColorWarning     = lipgloss.Color("#F59E0B")    // Amber - warnings
-	ColorError       = lipgloss.Color("#EF4444")    // Red - errors
-	ColorDanger      = lipgloss.Color("#DC2626")    // Dark red - critical
+	// Modern neon-accented color palette with high contrast
+	ColorPrimary     = lipgloss.Color("#00FFCC")    // Neon cyan - main brand
+	ColorSecondary   = lipgloss.Color("#00E5FF")    // Bright cyan - secondary actions
+	ColorAccent      = lipgloss.Color("#00FFCC")    // Neon cyan - highlights
+	ColorSuccess     = lipgloss.Color("#00FF88")    // Neon green - success states
+	ColorWarning     = lipgloss.Color("#FFD700")    // Gold - warnings
+	ColorError       = lipgloss.Color("#FF6B6B")    // Coral red - errors
+	ColorDanger      = lipgloss.Color("#FF4757")    // Bright red - critical
 	
-	// Text colors with better contrast
-	ColorTextPrimary   = lipgloss.Color("#F8FAFC")  // Almost white
-	ColorTextSecondary = lipgloss.Color("#E2E8F0")  // Light gray
-	ColorTextMuted     = lipgloss.Color("#94A3B8")  // Muted gray
-	ColorTextDisabled  = lipgloss.Color("#64748B")  // Disabled
+	// Text colors with maximum contrast for readability
+	ColorTextPrimary   = lipgloss.Color("#FFFFFF")  // Pure white
+	ColorTextSecondary = lipgloss.Color("#F0F0F0")  // Off white
+	ColorTextMuted     = lipgloss.Color("#B0B0B0")  // Light gray
+	ColorTextDisabled  = lipgloss.Color("#808080")  // Medium gray
+	ColorTextNeon      = lipgloss.Color("#00FFCC")  // Neon cyan text
 	
-	// Background colors for depth
-	ColorBgPrimary   = lipgloss.Color("#0F172A")    // Dark navy
-	ColorBgSecondary = lipgloss.Color("#1E293B")    // Lighter navy
-	ColorBgTertiary  = lipgloss.Color("#334155")    // Medium gray
-	ColorBgSurface   = lipgloss.Color("#475569")    // Light surface
+	// Background colors - darker for better contrast
+	ColorBgPrimary   = lipgloss.Color("#1E1E2E")    // Dark purple-gray
+	ColorBgSecondary = lipgloss.Color("#2A2A3A")    // Lighter purple-gray
+	ColorBgTertiary  = lipgloss.Color("#3A3A4A")    // Medium gray
+	ColorBgSurface   = lipgloss.Color("#4A4A5A")    // Light surface
+	ColorBgGradient  = lipgloss.Color("#2A2A3A")    // For gradient effects
 	
-	// Border colors
-	ColorBorderPrimary   = lipgloss.Color("#475569") // Subtle border
-	ColorBorderSecondary = lipgloss.Color("#64748B") // Visible border
-	ColorBorderAccent    = lipgloss.Color("#6366F1") // Highlighted border
+	// Border colors with neon accents
+	ColorBorderPrimary   = lipgloss.Color("#4A4A5A") // Subtle border
+	ColorBorderSecondary = lipgloss.Color("#6A6A7A") // Visible border
+	ColorBorderAccent    = lipgloss.Color("#00FFCC") // Neon cyan border
+	ColorBorderNeon      = lipgloss.Color("#00FFCC") // Neon glow border
 	
 	// Legacy aliases for backward compatibility
 	ColorText       = ColorTextPrimary
@@ -37,11 +43,22 @@ var (
 )
 
 var (
-	// Typography hierarchy with better visual weight
+	// Typography hierarchy with neon styling and better visual weight
 	TitleStyle = lipgloss.NewStyle().
 			Foreground(ColorPrimary).
 			Bold(true).
-			Margin(1, 0)
+			Margin(1, 0).
+			Align(lipgloss.Center)
+	
+	// Large header with neon glow effect
+	LargeHeaderStyle = lipgloss.NewStyle().
+			Foreground(ColorPrimary).
+			Bold(true).
+			Margin(1, 0).
+			Align(lipgloss.Center).
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(ColorBorderNeon).
+			Padding(1, 2)
 
 	SubtitleStyle = lipgloss.NewStyle().
 			Foreground(ColorTextMuted).
@@ -84,7 +101,10 @@ var (
 	SelectedStyle = lipgloss.NewStyle().
 			Foreground(ColorPrimary).
 			Bold(true).
-			Padding(0, 1)
+			Padding(0, 1).
+			Background(ColorBgSecondary).
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(ColorBorderNeon)
 
 	UnselectedStyle = lipgloss.NewStyle().
 			Foreground(ColorTextSecondary)
@@ -92,21 +112,47 @@ var (
 	CheckedStyle = lipgloss.NewStyle().
 			Foreground(ColorSuccess).
 			Bold(true).
-			Padding(0, 1)
+			Padding(0, 1).
+			Background(ColorBgSecondary).
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(ColorSuccess)
+	
+	// Neon glow effect for checkmarks
+	NeonCheckStyle = lipgloss.NewStyle().
+			Foreground(ColorPrimary).
+			Bold(true).
+			Padding(0, 1).
+			Background(ColorBgSecondary).
+			Border(lipgloss.ThickBorder()).
+			BorderForeground(ColorBorderNeon)
 
 	UncheckedStyle = lipgloss.NewStyle().
 			Foreground(ColorTextMuted)
 
-	// Enhanced interactive styles with modern polish
+	// Enhanced interactive styles with neon hover effects
 	HoverStyle = lipgloss.NewStyle().
 			Foreground(ColorAccent).
 			Bold(true).
-			Padding(0, 1)
+			Padding(0, 1).
+			Background(ColorBgTertiary).
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(ColorBorderNeon)
+	
+	// Subtle hover effect
+	SubtleHoverStyle = lipgloss.NewStyle().
+			Foreground(ColorTextPrimary).
+			Background(ColorBgTertiary).
+			Padding(0, 1).
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(ColorBorderSecondary)
 
 	FocusedStyle = lipgloss.NewStyle().
 			Foreground(ColorAccent).
 			Bold(true).
-			Padding(0, 1)
+			Padding(0, 1).
+			Background(ColorBgTertiary).
+			Border(lipgloss.DoubleBorder()).
+			BorderForeground(ColorBorderNeon)
 
 	// Modern card-like styles
 	CardStyle = lipgloss.NewStyle().
@@ -156,7 +202,10 @@ func GetLeftPanelStyle(terminalWidth, terminalHeight int) lipgloss.Style {
 	return BorderStyle.Copy().
 		Width(panelWidth).
 		Height(maxPanelHeight).
-		Margin(1, 1)
+		Margin(2, 2).
+		Padding(1, 2).
+		Border(lipgloss.DoubleBorder()).
+		BorderForeground(ColorBorderNeon)
 }
 
 // GetRightPanelStyle returns a dynamically sized right panel style with better proportions
@@ -176,7 +225,10 @@ func GetRightPanelStyle(terminalWidth, terminalHeight int) lipgloss.Style {
 	return BorderStyle.Copy().
 		Width(panelWidth).
 		Height(panelHeight).
-		Margin(1, 1)
+		Margin(2, 2).
+		Padding(1, 2).
+		Border(lipgloss.DoubleBorder()).
+		BorderForeground(ColorBorderNeon)
 }
 
 // GetFullScreenStyle returns a style that fills the entire terminal
