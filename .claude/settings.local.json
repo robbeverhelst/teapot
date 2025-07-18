@@ -2,7 +2,17 @@
   "permissions": {
     "allow": [
       "Bash(go mod:*)",
-      "Bash(go build:*)"
+      "Bash(go build:*)",
+      "Bash(make:*)",
+      "Bash(go env:*)",
+      "Bash(ls:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(grep:*)",
+      "Bash(go run:*)",
+      "WebFetch(domain:pkg.go.dev)",
+      "Bash(go get:*)",
+      "Bash(mkdir:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }
